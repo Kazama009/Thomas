@@ -30,11 +30,15 @@ if ENV:
     TOKEN = os.environ.get("TOKEN", None)
     OPENAI_API_TOKEN = os.environ.get("OPENAI_API_TOKEN", None)
     SUPPORT_CHAT = os.environ.get("SUPPORT_CHAT", None)
+    LOAD = os.environ.get("LOAD", None)
+    NO_LOAD = os.environ.get("NO_LOAD", None)
 
 else:
     TOKEN = Config.TOKEN
     OPENAI_API_TOKEN = Config.OPENAI_API_TOKEN
-    SUPPORT_CHAT = os.environ.get("SUPPORT_CHAT", None)
+    SUPPORT_CHAT = Config.SUPPORT_CHAT
+    LOAD = Config.LOAD
+    NO_LOAD = Config.NO_LOAD
 
 application = Application.builder().token(TOKEN).build()
 asyncio.get_event_loop().run_until_complete(application.bot.initialize())
