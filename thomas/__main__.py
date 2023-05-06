@@ -1,4 +1,5 @@
 import time
+import importlib
 
 from telegram import InlineKeyboardMarkup, InlineKeyboardButton, Update
 from telegram.ext import ContextTypes, CommandHandler
@@ -6,6 +7,8 @@ from telegram.helpers import escape_markdown
 from telegram.constants import ParseMode
 
 from thomas import application, LOGGER, SUPPORT_CHAT, START_TIME
+from thomas.modules import ALL_MODULES
+
 
 START_TEXT = '''
 Hᴇʟʟᴏ *{}*
@@ -28,6 +31,18 @@ buttons = [
         )
     ]
 ]
+
+IMPORTED = {}
+
+for module_name in ALL_MODULES:
+    imported_module = importlib.import_module("thomas.modules." + module_name)
+    if not hasattr(imported_module, "__mod_name__"):
+        imported_module.__mod_name__ = imported_module.__name__
+
+    if imported_module.__mod_name__.lower() not in IMPORTED:
+        IMPORTED[imported_module.__mod_name__.lower()] = imported_module
+    else:
+        raise Exception("Can't have two modules with the same name! Please change one")
 
 def get_readable_time(seconds: int) -> str:
     count = 0
@@ -66,10 +81,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         disable_web_page_preview=True   
     )
 
+async def help(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    HELP_TEXT = "I am an AI but in telegram.\nAsk me any query and I will answer.\nIts that simple 😅"
+    
+    await update.effective_message.reply_text(HELP_TEXT)
+
 def main():
     start_handler = CommandHandler("start", start, block=False)
+    help_handler = CommandHandler("help", help, block=False)
 
     application.add_handler(start_handler)
+    application.add_handler(help_handler)
 
     application.run_polling(timeout=15, drop_pending_updates=False)
 
